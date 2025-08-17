@@ -405,7 +405,7 @@
             <button class="nav-tab" onclick="showTab('income')">Income</button>
             <button class="nav-tab" onclick="showTab('expense')">Expense</button>
             <button class="nav-tab" onclick="showTab('journal')">Journal</button>
-            <button class="nav-tab" onclick="showTab('accounts')">Accounts Mutation</button>
+            <button class="nav-tab" onclick="showTab('accounts')">Accounts</button> 
             <button class="nav-tab" onclick="showTab('coa')">COA</button>
         </div>
 
@@ -413,19 +413,21 @@
         <div id="dashboard" class="tab-content active">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-value" style="color: #38a169;" id="totalIncome">Rp 0</div>
+                    <div class="stat-value" style="color: #38a169;" id="totalIncome">
+                    Rp {{ number_format($total_income, 0, ',', '.') }}
+                    </div>
                     <div class="stat-label">Total Income</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" style="color: #e53e3e;" id="totalExpense">Rp 0</div>
+                    <div class="stat-value" style="color: #e53e3e;" id="totalExpense">Rp {{ number_format($total_expenses, 0, ',', '.') }}</div>
                     <div class="stat-label">Total Expense</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" style="color: #667eea;" id="netBalance">Rp 0</div>
+                    <div class="stat-value" style="color: #667eea;" id="netBalance">Rp {{ number_format($balance, 0, ',', '.') }}</div>
                     <div class="stat-label">Net Balance</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" style="color: #764ba2;" id="totalTransactions">0</div>
+                    <div class="stat-value" style="color: #764ba2;" id="totalTransactions">{{ $total_transactions }}</div>
                     <div class="stat-label">Total Transactions</div>
                 </div>
             </div>
@@ -443,7 +445,18 @@
                             <th>Type</th>
                         </tr>
                     </thead>
-                    <tbody></tbody>
+                    <tbody>
+                        @foreach($recentTransactions as $trx)
+                        <tr>
+                            <td>{{ $trx->id }}</td>
+                            <td>{{ $trx->created_at->format('d-m-Y') }}</td>
+                            <td>{{ $trx->description }}</td>
+                            <td>{{ $trx->account->name ?? '-' }}</td>
+                            <td>Rp {{ number_format($trx->amount, 0, ',', '.') }}</td>
+                            <td>{{ $trx->type }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -1671,110 +1684,110 @@
             }
         });
 
-        // Sample data for demonstration
-        function loadSampleData() {
-            // Add some sample deposit master data
-            depositMaster.push(
-                { id: 'SPP001', description: 'SPP Bulanan Santri', defaultAmount: 500000 },
-                { id: 'REG001', description: 'Pendaftaran Santri Baru', defaultAmount: 1000000 },
-                { id: 'INF001', description: 'Infaq Operasional', defaultAmount: 0 }
-            );
+        // // Sample data for demonstration
+        // function loadSampleData() {
+        //     // Add some sample deposit master data
+        //     depositMaster.push(
+        //         { id: 'SPP001', description: 'SPP Bulanan Santri', defaultAmount: 500000 },
+        //         { id: 'REG001', description: 'Pendaftaran Santri Baru', defaultAmount: 1000000 },
+        //         { id: 'INF001', description: 'Infaq Operasional', defaultAmount: 0 }
+        //     );
             
-            // Add some sample transactions
-            const sampleTransactions = [
-                {
-                    date: '2024-01-15',
-                    description: 'Penerimaan SPP Januari',
-                    amount: 25000000,
-                    creditSource: '1200100',
-                    incomeAccount: '6100100',
-                    type: 'Income'
-                },
-                {
-                    date: '2024-01-16',
-                    paidTo: 'PT Listrik Negara',
-                    description: 'Pembayaran Listrik Januari',
-                    amount: 3500000,
-                    expenseAccount: '7100113',
-                    paymentMethod: '1200100',
-                    type: 'Expense'
-                }
-            ];
+        //     // Add some sample transactions
+        //     const sampleTransactions = [
+        //         {
+        //             date: '2024-01-15',
+        //             description: 'Penerimaan SPP Januari',
+        //             amount: 25000000,
+        //             creditSource: '1200100',
+        //             incomeAccount: '6100100',
+        //             type: 'Income'
+        //         },
+        //         {
+        //             date: '2024-01-16',
+        //             paidTo: 'PT Listrik Negara',
+        //             description: 'Pembayaran Listrik Januari',
+        //             amount: 3500000,
+        //             expenseAccount: '7100113',
+        //             paymentMethod: '1200100',
+        //             type: 'Expense'
+        //         }
+        //     ];
             
-            sampleTransactions.forEach(transaction => {
-                const docNumber = generateDocumentNumber();
+        //     sampleTransactions.forEach(transaction => {
+        //         const docNumber = generateDocumentNumber();
                 
-                if (transaction.type === 'Income') {
-                    const creditSourceAccount = chartOfAccounts.find(acc => acc.number === transaction.creditSource);
-                    const incomeAccount = chartOfAccounts.find(acc => acc.number === transaction.incomeAccount);
+        //         if (transaction.type === 'Income') {
+        //             const creditSourceAccount = chartOfAccounts.find(acc => acc.number === transaction.creditSource);
+        //             const incomeAccount = chartOfAccounts.find(acc => acc.number === transaction.incomeAccount);
 
-                    journalEntries.push({
-                        documentNumber: docNumber,
-                        date: transaction.date,
-                        account: transaction.creditSource,
-                        accountName: creditSourceAccount.name,
-                        description: transaction.description,
-                        debit: transaction.amount,
-                        credit: 0,
-                        type: 'Income',
-                        status: 'Posted'
-                    });
+        //             journalEntries.push({
+        //                 documentNumber: docNumber,
+        //                 date: transaction.date,
+        //                 account: transaction.creditSource,
+        //                 accountName: creditSourceAccount.name,
+        //                 description: transaction.description,
+        //                 debit: transaction.amount,
+        //                 credit: 0,
+        //                 type: 'Income',
+        //                 status: 'Posted'
+        //             });
 
-                    journalEntries.push({
-                        documentNumber: docNumber,
-                        date: transaction.date,
-                        account: transaction.incomeAccount,
-                        accountName: incomeAccount.name,
-                        description: transaction.description,
-                        debit: 0,
-                        credit: transaction.amount,
-                        type: 'Income',
-                        status: 'Posted'
-                    });
-                } else {
-                    const expenseAccount = chartOfAccounts.find(acc => acc.number === transaction.expenseAccount);
-                    const paymentAccount = chartOfAccounts.find(acc => acc.number === transaction.paymentMethod);
+        //             journalEntries.push({
+        //                 documentNumber: docNumber,
+        //                 date: transaction.date,
+        //                 account: transaction.incomeAccount,
+        //                 accountName: incomeAccount.name,
+        //                 description: transaction.description,
+        //                 debit: 0,
+        //                 credit: transaction.amount,
+        //                 type: 'Income',
+        //                 status: 'Posted'
+        //             });
+        //         } else {
+        //             const expenseAccount = chartOfAccounts.find(acc => acc.number === transaction.expenseAccount);
+        //             const paymentAccount = chartOfAccounts.find(acc => acc.number === transaction.paymentMethod);
 
-                    journalEntries.push({
-                        documentNumber: docNumber,
-                        date: transaction.date,
-                        account: transaction.expenseAccount,
-                        accountName: expenseAccount.name,
-                        description: transaction.description,
-                        debit: transaction.amount,
-                        credit: 0,
-                        type: 'Expense',
-                        status: 'Posted'
-                    });
+        //             journalEntries.push({
+        //                 documentNumber: docNumber,
+        //                 date: transaction.date,
+        //                 account: transaction.expenseAccount,
+        //                 accountName: expenseAccount.name,
+        //                 description: transaction.description,
+        //                 debit: transaction.amount,
+        //                 credit: 0,
+        //                 type: 'Expense',
+        //                 status: 'Posted'
+        //             });
 
-                    journalEntries.push({
-                        documentNumber: docNumber,
-                        date: transaction.date,
-                        account: transaction.paymentMethod,
-                        accountName: paymentAccount.name,
-                        description: transaction.description,
-                        debit: 0,
-                        credit: transaction.amount,
-                        type: 'Expense',
-                        status: 'Posted'
-                    });
-                }
+        //             journalEntries.push({
+        //                 documentNumber: docNumber,
+        //                 date: transaction.date,
+        //                 account: transaction.paymentMethod,
+        //                 accountName: paymentAccount.name,
+        //                 description: transaction.description,
+        //                 debit: 0,
+        //                 credit: transaction.amount,
+        //                 type: 'Expense',
+        //                 status: 'Posted'
+        //             });
+        //         }
                 
-                transactions.push({
-                    ...transaction,
-                    documentNumber: docNumber
-                });
-            });
+        //         transactions.push({
+        //             ...transaction,
+        //             documentNumber: docNumber
+        //         });
+        //     });
             
-            loadDepositMaster();
-            updateJournalTable();
-            updateDashboard();
-        }
+        //     loadDepositMaster();
+        //     updateJournalTable();
+        //     updateDashboard();
+        // }
 
-        // Load sample data on initialization
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(loadSampleData, 1000);
-        });
+        // // Load sample data on initialization
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     setTimeout(loadSampleData, 1000);
+        // });
     </script>
 </body>
 </html>
