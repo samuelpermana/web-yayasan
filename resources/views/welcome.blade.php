@@ -405,9 +405,7 @@
             <button class="nav-tab" onclick="showTab('income')">Income</button>
             <button class="nav-tab" onclick="showTab('expense')">Expense</button>
             <button class="nav-tab" onclick="showTab('journal')">Journal</button>
-            <button class="nav-tab" onclick="showTab('accounts')">Accounts</button>
-            <button class="nav-tab" onclick="showTab('balance')">Balance</button>
-            <button class="nav-tab" onclick="showTab('reports')">Reports</button>
+            <button class="nav-tab" onclick="showTab('accounts')">Accounts Mutation</button>
             <button class="nav-tab" onclick="showTab('coa')">COA</button>
         </div>
 
@@ -595,61 +593,6 @@
                     </div>
                 </div>
                 <div id="accountTransactions"></div>
-            </div>
-        </div>
-
-        <!-- Balance Tab -->
-        <div id="balance" class="tab-content">
-            <div class="card">
-                <h3>Display Balance</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="balanceAccount">Account Number</label>
-                        <select id="balanceAccount"></select>
-                    </div>
-                    <div class="form-group">
-                        <label for="balancePeriod">Period</label>
-                        <select id="balancePeriod">
-                            <option value="monthly">Monthly</option>
-                            <option value="yearly">Yearly</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="balanceStartDate">Start Date</label>
-                        <input type="date" id="balanceStartDate">
-                    </div>
-                    <div class="form-group">
-                        <label for="balanceEndDate">End Date</label>
-                        <input type="date" id="balanceEndDate">
-                    </div>
-                </div>
-                <button onclick="displayBalance()">Show Balance</button>
-                <div id="balanceResult"></div>
-            </div>
-        </div>
-
-        <!-- Reports Tab -->
-        <div id="reports" class="tab-content">
-            <div class="card">
-                <h3>Financial Reports</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="reportType">Report Type</label>
-                        <select id="reportType">
-                            <option value="income_statement">Income Statement</option>
-                            <option value="balance_sheet">Balance Sheet</option>
-                            <option value="trial_balance">Trial Balance</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="reportPeriod">Period</label>
-                        <input type="month" id="reportPeriod">
-                    </div>
-                </div>
-                <button onclick="generateReport()">Generate Report</button>
-                <div id="reportResult"></div>
             </div>
         </div>
 
