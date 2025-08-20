@@ -11,24 +11,35 @@ return new class extends Migration
      */
     public function up(): void
     {
-
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->text('description')->nullable();
             $table->decimal('amount', 15, 2);
 
+            // tanggal transaksi
+            $table->date('transaction_date')->nullable();
+
+            // akun sumber/destinasi pihak ketiga (opsional)
             $table->string('paid_to_source')->nullable();
-            $table->foreign('paid_to_source')
+
+            // hubungan ke akun debit dan kredit
+            $table->string('debit_account_id')->nullable();
+            $table->foreign('debit_account_id')
                 ->references('id')->on('accounts')
                 ->onDelete('set null');
 
-            $table->foreignId('id_deposit_master')->nullable()
-                ->constrained('deposit_master')
+            $table->string('credit_account_id')->nullable();
+            $table->foreign('credit_account_id')
+                ->references('id')->on('accounts')
                 ->onDelete('set null');
 
-            $table->enum('type', ['Expense', 'Income']);
+            // relasi ke master transaksi
+            $table->foreignId('id_deposit_master')->nullable()
+                ->constrained('deposit_masters')
+                ->onDelete('set null');
+
             $table->timestamps();
-});
+        });
 
     }
 

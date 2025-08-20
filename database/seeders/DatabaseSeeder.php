@@ -11,7 +11,6 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Chart of Accounts
         $chartOfAccounts = [
             ['id' => '1100100', 'name' => 'Kas', 'description' => 'Transaksi untuk pembayaran dan penerimaan uang melalui Kas', 'type' => 'Asset'],
             ['id' => '1100101', 'name' => 'Money Intransit', 'description' => 'Transaksi Kas penampungan atas penerimaan dan pengeluaran', 'type' => 'Asset'],
@@ -66,38 +65,184 @@ class DatabaseSeeder extends Seeder
 
         // --- Seed Deposit Master ---
         $depositMasters = [
-            ['description' => 'Monthly Deposit'],
-            ['description' => 'Emergency Fund'],
-            ['description' => 'Investment Fund'],
+            [
+                'description' => 'Monthly Deposit',
+                'default_amount' => 1000,
+                'number' => "REQ123",
+                'debit_account_id' => '1300100',   // Deposito Bank BSI
+                'credit_account_id' => '1200100',  // Bank BSI
+            ],
+            [
+                'description' => 'Emergency Fund',
+                'default_amount' => 500,
+                'number' => "REQ125",
+                'debit_account_id' => '1100100',   // Kas
+                'credit_account_id' => '6100101',  // Pendapatan Lain-lain
+            ],
+            [
+                'description' => 'Investment Fund',
+                'default_amount' => 2000,
+                'number' => "REQ124",
+                'debit_account_id' => '2300100',   // Asset Furniture
+                'credit_account_id' => '1200100',  // Bank BSI
+            ],
         ];
         foreach ($depositMasters as $dm) {
             DepositMaster::create($dm);
         }
 
-        // --- Seed Transactions (contoh pakai account id yang sesuai) ---
+        // --- Seed Transactions (diperbaiki dan dilengkapi) ---
         $transactions = [
+            // Transaksi yang sudah ada
             [
                 'description' => 'Pembelian ATK',
                 'amount' => 250000,
-                'paid_to_source' => '1100100', // Kas
+                'paid_to_source' => '1100100',
                 'id_deposit_master' => null,
-                'type' => 'Expense',
+                'debit_account_id' => '7100112',
+                'credit_account_id' => '1100100',
+                'transaction_date' => '2025-01-02',
             ],
             [
                 'description' => 'Penerimaan SPP',
                 'amount' => 3000000,
-                'paid_to_source' => '1200100', // Bank BSI
+                'paid_to_source' => '1200100',
                 'id_deposit_master' => null,
-                'type' => 'Income',
+                'debit_account_id' => '1200100',
+                'credit_account_id' => '6100100',
+                'transaction_date' => '2025-01-05',
             ],
             [
                 'description' => 'Setor ke Deposito',
                 'amount' => 1000000,
-                'paid_to_source' => '1200100', // Bank BSI
-                'id_deposit_master' => 1, // Monthly Deposit
-                'type' => 'Expense',
+                'paid_to_source' => '1200100',
+                'id_deposit_master' => 1,
+                'debit_account_id' => '1300100',
+                'credit_account_id' => '1200100',
+                'transaction_date' => '2025-01-07',
             ],
+            [
+                'description' => 'Pembayaran Listrik PLN',
+                'amount' => 750000,
+                'paid_to_source' => '1200100',
+                'id_deposit_master' => null,
+                'debit_account_id' => '7100113',
+                'credit_account_id' => '1200100',
+                'transaction_date' => '2025-01-08',
+            ],
+            [
+                'description' => 'Pembayaran Gaji Staff',
+                'amount' => 5000000,
+                'paid_to_source' => '1200100',
+                'id_deposit_master' => null,
+                'debit_account_id' => '7100101',
+                'credit_account_id' => '1200100',
+                'transaction_date' => '2025-01-10',
+            ],
+            [
+                'description' => 'Penerimaan Donasi Alumni',
+                'amount' => 2000000,
+                'paid_to_source' => '1100100',
+                'id_deposit_master' => null,
+                'debit_account_id' => '1100100',
+                'credit_account_id' => '6100101',
+                'transaction_date' => '2025-01-12',
+            ],
+            [
+                'description' => 'Pembelian Meja Kantor',
+                'amount' => 1500000,
+                'paid_to_source' => '1200100',
+                'id_deposit_master' => null,
+                'debit_account_id' => '2300100',
+                'credit_account_id' => '1200100',
+                'transaction_date' => '2025-01-14',
+            ],
+            [
+                'description' => 'Tarik Tunai dari Bank',
+                'amount' => 1000000,
+                'paid_to_source' => '1200100',
+                'id_deposit_master' => null,
+                'debit_account_id' => '1100100',
+                'credit_account_id' => '1200100',
+                'transaction_date' => '2025-01-15',
+            ],
+            [
+                'description' => 'Pembayaran Internet Kantor',
+                'amount' => 500000,
+                'paid_to_source' => '1100100',
+                'id_deposit_master' => null,
+                'debit_account_id' => '7100116',
+                'credit_account_id' => '1100100',
+                'transaction_date' => '2025-01-18',
+            ],
+            [
+                'description' => 'Penerimaan Hibah Pemerintah',
+                'amount' => 10000000,
+                'paid_to_source' => '1200100',
+                'id_deposit_master' => null,
+                'debit_account_id' => '1200100',
+                'credit_account_id' => '6100101',
+                'transaction_date' => '2025-01-20',
+            ],
+            
+            // Transaksi tambahan untuk melengkapi perhitungan
+            [
+                'description' => 'Pendapatan Bunga Bank',
+                'amount' => 120000,
+                'paid_to_source' => '1200100',
+                'id_deposit_master' => null,
+                'debit_account_id' => '1200100',
+                'credit_account_id' => '8100100',
+                'transaction_date' => '2025-01-22',
+            ],
+            [
+                'description' => 'Pemberian Pinjaman ke Karyawan',
+                'amount' => 1500000,
+                'paid_to_source' => '1100100',
+                'id_deposit_master' => null,
+                'debit_account_id' => '1400100',
+                'credit_account_id' => '1100100',
+                'transaction_date' => '2025-01-23',
+            ],
+            [
+                'description' => 'Pembayaran Transportasi Acara',
+                'amount' => 600000,
+                'paid_to_source' => '1100100',
+                'id_deposit_master' => null,
+                'debit_account_id' => '7100103',
+                'credit_account_id' => '1100100',
+                'transaction_date' => '2025-01-24',
+            ],
+            [
+                'description' => 'Pembayaran BPJS Karyawan',
+                'amount' => 900000,
+                'paid_to_source' => '1200100',
+                'id_deposit_master' => null,
+                'debit_account_id' => '7100107',
+                'credit_account_id' => '1200100',
+                'transaction_date' => '2025-01-25',
+            ],
+            [
+                'description' => 'Pembayaran Cetakan Brosur',
+                'amount' => 300000,
+                'paid_to_source' => '1100100',
+                'id_deposit_master' => null,
+                'debit_account_id' => '7100124',
+                'credit_account_id' => '1100100',
+                'transaction_date' => '2025-01-26',
+            ],
+            [
+                'description' => 'Pembayaran Makan & Minum Acara',
+                'amount' => 750000,
+                'paid_to_source' => '1100100',
+                'id_deposit_master' => null,
+                'debit_account_id' => '7100111',
+                'credit_account_id' => '1100100',
+                'transaction_date' => '2025-01-27',
+            ]
         ];
+
+
         foreach ($transactions as $trx) {
             Transaction::create($trx);
         }

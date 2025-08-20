@@ -11,11 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('deposit_master', function (Blueprint $table) {
+        Schema::create('deposit_masters', function (Blueprint $table) {
             $table->id();
+            $table->string('number')->unique();
+            $table->decimal('default_amount', 15, 2)->default(0);
             $table->text('description')->nullable();
+
+            // Relasi ke akun debit & credit → harus string
+            $table->string('debit_account_id')->nullable();
+            $table->string('credit_account_id')->nullable();
+
             $table->timestamps();
+
+            // Foreign key ke tabel accounts (id = string)
+            $table->foreign('debit_account_id')->references('id')->on('accounts')->onDelete('set null');
+            $table->foreign('credit_account_id')->references('id')->on('accounts')->onDelete('set null');
         });
+
     }
 
     /**
