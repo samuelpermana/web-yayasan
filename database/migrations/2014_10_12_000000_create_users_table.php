@@ -1,4 +1,5 @@
 <?php
+// database/migrations/xxxx_xx_xx_create_users_table.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,6 +17,7 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('email')->unique();
             $table->string('password');
+            $table->enum('type', ['admin', 'user'])->default('user');
             $table->rememberToken();
             $table->timestamps();
         });

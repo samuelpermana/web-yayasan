@@ -5,6 +5,9 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Account;
 use App\Models\DepositMaster;
+use App\Models\User; // tambahkan ini
+use Illuminate\Support\Facades\Hash; // tambahkan ini juga
+
 use App\Models\Transaction;
 
 class DatabaseSeeder extends Seeder
@@ -242,9 +245,23 @@ class DatabaseSeeder extends Seeder
             ]
         ];
 
-
         foreach ($transactions as $trx) {
             Transaction::create($trx);
         }
+
+                // --- Seed Users (Admin & User Default) ---
+        User::create([
+            'username' => 'admin',
+            'email' => 'admin@example.com',
+            'password' => Hash::make('password'), // ganti sesuai kebutuhan
+            'type' => 'admin',
+        ]);
+
+        User::create([
+            'username' => 'user',
+            'email' => 'user@example.com',
+            'password' => Hash::make('password'), // ganti sesuai kebutuhan
+            'type' => 'user',
+        ]);
     }
 }
