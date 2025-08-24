@@ -42,7 +42,7 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="creditAccount">Credit Account (50)</label>
+                    <label for="creditAccount">Credit Account</label>
                     <select id="creditAccount" name="credit_account_id">
                         <option value="">Select Credit Account</option>
                         @foreach($accounts as $account)
@@ -51,13 +51,24 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="debitAccount">Debit Account (40)</label>
+                    <label for="creditDK">Credit D/K Reference</label>
+                    <input type="text" id="creditDK" name="credit_dk_reference" placeholder="e.g., 50" value="50" maxlength="10">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="debitAccount">Debit Account</label>
                     <select id="debitAccount" name="debit_account_id">
                         <option value="">Select Debit Account</option>
                         @foreach($accounts as $account)
                             <option value="{{ $account->id }}">{{ $account->id }} - {{ $account->name }} ({{ $account->type }})</option>
                         @endforeach
                     </select>
+                </div>
+                <div class="form-group">
+                    <label for="debitDK">Debit D/K Reference</label>
+                    <input type="text" id="debitDK" name="debit_dk_reference" placeholder="e.g., 40" value="40" maxlength="10">
                 </div>
             </div>
 

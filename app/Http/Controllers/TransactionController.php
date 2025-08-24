@@ -33,12 +33,12 @@ class TransactionController extends Controller
         // Tambahkan Net Income ke Retained Earnings
         $retainedEarnings = $equities->firstWhere('name', 'Laba Ditahan');
         if ($retainedEarnings) {
-            $retainedEarnings->balance += $netIncome;
+            $retainedEarnings->setAttribute('nilai_awal', $retainedEarnings->getAttribute('nilai_awal') + $netIncome);
         } else {
             $equities->push(new Account([
                 'name'    => 'Laba Ditahan',
                 'type'    => 'Equity',
-                'balance' => $netIncome,
+                'nilai_awal' => $netIncome,
             ]));
         }
 
@@ -91,6 +91,8 @@ class TransactionController extends Controller
             'credit_account_id'     => 'required|exists:accounts,id',
             'debit_account_id'      => 'required|exists:accounts,id',
             'from_to'               => 'required|string',
+            'debit_dk_reference'    => 'nullable|string|max:10',
+            'credit_dk_reference'   => 'nullable|string|max:10',
         ];
 
         try {
@@ -105,6 +107,8 @@ class TransactionController extends Controller
                 'credit_account_id'     => $validated['credit_account_id'],
                 'debit_account_id'      => $validated['debit_account_id'],
                 'from_to'               => $validated['from_to'],
+                'debit_dk_reference'    => $validated['debit_dk_reference'] ?? '40',
+                'credit_dk_reference'   => $validated['credit_dk_reference'] ?? '50',
             ]);
 
             return redirect()->route('transaction.index')

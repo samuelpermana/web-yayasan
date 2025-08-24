@@ -19,6 +19,8 @@ class Transaction extends Model
         'id_deposit_master',
         'debit_account_id',
         'credit_account_id',
+        'debit_dk_reference',
+        'credit_dk_reference',
     ];
 
     protected $casts = [

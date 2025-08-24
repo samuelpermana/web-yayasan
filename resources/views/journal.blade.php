@@ -74,7 +74,9 @@
                                 '{{ $journal->debitAccount?->name ?? '-' }}',
                                 '{{ $journal->creditAccount?->id ?? '-' }}',
                                 '{{ $journal->creditAccount?->name ?? '-' }}',
-                                '{{ number_format($journal->amount, 0, ',', '.') }}'
+                                '{{ number_format($journal->amount, 0, ',', '.') }}',
+                                '{{ $journal->debit_dk_reference ?? '40' }}',
+                                '{{ $journal->credit_dk_reference ?? '50' }}'
                             )">
                             Print
                         </button>
@@ -178,7 +180,7 @@
 
 
     // ===== Modal Print =====
-    function openPrintModal(id, date, desc, paidTo, debitId, debitName, creditId, creditName, amount) {
+    function openPrintModal(id, date, desc, paidTo, debitId, debitName, creditId, creditName, amount, debitDK, creditDK) {
         const printHtml = `
             <div class="print-form">
                 <h2 style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 10px;">BUKTI TRANSAKSI</h2>
@@ -197,13 +199,13 @@
                     <tbody>
                         <tr style="border: 1px solid #333;">
                             <td style="border: 1px solid #333; padding: 10px;">${debitId}</td>
-                            <td style="border: 1px solid #333; padding: 10px; text-align: center;">40</td>
+                            <td style="border: 1px solid #333; padding: 10px; text-align: center;">${debitDK}</td>
                             <td style="border: 1px solid #333; padding: 10px;">${debitName}</td>
                             <td style="border: 1px solid #333; padding: 10px; text-align: right;">Rp ${amount}</td>
                         </tr>
                         <tr style="border: 1px solid #333;">
                             <td style="border: 1px solid #333; padding: 10px;">${creditId}</td>
-                            <td style="border: 1px solid #333; padding: 10px; text-align: center;">50</td>
+                            <td style="border: 1px solid #333; padding: 10px; text-align: center;">${creditDK}</td>
                             <td style="border: 1px solid #333; padding: 10px;">${creditName}</td>
                             <td style="border: 1px solid #333; padding: 10px; text-align: right;">Rp ${amount}</td>
                         </tr>
