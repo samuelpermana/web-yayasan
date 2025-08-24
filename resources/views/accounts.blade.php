@@ -34,6 +34,7 @@
         <p><strong>GL Account:</strong> {{ $selectedAccount->name ?? '-' }} ({{ $selectedAccount->type ?? '-' }})</p>
         <p><strong>Description:</strong> {{ $selectedAccount->description ?? '-' }}</p>
         <p><strong>Saldo Awal:</strong> Rp {{ isset($selectedAccount) ? number_format($selectedAccount->nilai_awal,0,',','.') : '-' }}</p>
+        <p><strong>Total Saldo Akhir:</strong> Rp {{ isset($totalSaldo) ? number_format($totalSaldo,0,',','.') : '-' }}</p>
 
         <!-- Tombol Export -->
         <div style="margin: 15px 0;">
@@ -103,6 +104,7 @@
             ["GL Account:", "{{ $selectedAccount->name ?? '-' }} ({{ $selectedAccount->type ?? '-' }})"],
             ["Description:", "{{ $selectedAccount->description ?? '-' }}"],
             ["Saldo Awal:", "Rp {{ isset($selectedAccount) ? number_format($selectedAccount->nilai_awal,0,',','.') : '-' }}"],
+            ["Total Saldo Akhir:", "Rp {{ isset($totalSaldo) ? number_format($totalSaldo,0,',','.') : '-' }}"],
             [], // row kosong sebelum tabel
         ];
 
@@ -113,8 +115,8 @@
         // --- Buat worksheet kosong ---
         let ws = XLSX.utils.aoa_to_sheet(accountInfo);
 
-        // --- Sisipkan tabel mulai row ke-6 ---
-        XLSX.utils.sheet_add_json(ws, XLSX.utils.sheet_to_json(wsTransaksi), { origin: "A6" });
+        // --- Sisipkan tabel mulai row ke-7 ---
+        XLSX.utils.sheet_add_json(ws, XLSX.utils.sheet_to_json(wsTransaksi), { origin: "A7" });
 
         // --- Simpan ke file ---
         let wb = XLSX.utils.book_new();
@@ -133,11 +135,12 @@
         doc.text("GL Account: {{ $selectedAccount->name ?? '-' }} ({{ $selectedAccount->type ?? '-' }})", 14, 22);
         doc.text("Description: {{ $selectedAccount->description ?? '-' }}", 14, 28);
         doc.text("Saldo Awal: Rp {{ isset($selectedAccount) ? number_format($selectedAccount->nilai_awal,0,',','.') : '-' }}", 14, 34);
+        doc.text("Total Saldo Akhir: Rp {{ isset($totalSaldo) ? number_format($totalSaldo,0,',','.') : '-' }}", 14, 40);
 
         // Tabel transaksi mulai setelah info
         doc.autoTable({
             html: '#accountTransactionTable',
-            startY: 42,
+            startY: 48,
             theme: 'grid',
             styles: { fontSize: 10 }
         });

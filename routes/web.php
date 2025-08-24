@@ -43,3 +43,8 @@ Route::get('/user/dashboard', [HomeController2::class, 'index'])->name('user.das
 Route::get('/user/dashboard', [HomeController2::class, 'index'])->name('user.dashboard');
 Route::get('/user/coa', [CoaController::class, 'index'])->name('user.coa'); 
 });
+
+
+Route::get('/contoh', function () {
+    return view('contoh');
+});

@@ -3,7 +3,6 @@
 @section('content')
 <div class="card">
     <h3>Journal Entries</h3>
-
     <!-- Filter Form -->
     <div style="margin-bottom: 15px; display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
         <div>
@@ -13,6 +12,10 @@
         <div>
             <label>Sampai:</label>
             <input type="date" id="toDate" onchange="applyFilters()">
+        </div>
+        <div>
+            <label>Document No.:</label>
+            <input type="text" id="docFilter" placeholder="Cari document no..." onkeyup="applyFilters()">
         </div>
         <div>
             <label>Description:</label>
@@ -40,23 +43,24 @@
             <tr>
                 <th>Document No.</th>
                 <th>Date</th>
+                <th>Account</th>
                 <th>Description</th>
-                <th>Debit Account</th>
-                <th>Credit Account</th>
-                <th>Amount</th>
+                <th>Debit</th>
+                <th>Credit</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
             @foreach($journals as $journal)
+                {{-- Baris Debit --}}
                 <tr>
                     <td>{{ $journal->id }}</td>
                     <td>{{ \Carbon\Carbon::parse($journal->transaction_date)->format('Y-m-d') }}</td>
+                    <td>{{ $journal->debitAccount?->name ?? '-' }}</td>
                     <td>{{ $journal->description }}</td>
-                    <td>{{ $journal->debitAccount?->id ?? '-' }} - {{ $journal->debitAccount?->name ?? '-' }} ({{ $journal->debitAccount?->type ?? '-' }})</td>
-                    <td>{{ $journal->creditAccount?->id ?? '-' }} - {{ $journal->creditAccount?->name ?? '-' }} ({{ $journal->creditAccount?->type ?? '-' }})</td>
-                    <td>{{ number_format($journal->amount, 0, ',', '.') }}</td>
-                    <td>
+                    <td>{{ $journal->debitAccount ? number_format($journal->amount, 0, ',', '.') : '' }}</td>
+                    <td></td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">
                         <a href="{{ route('journal.edit', $journal->id) }}">
                             <button type="button" title="Edit">Edit</button>
                         </a>
@@ -76,10 +80,21 @@
                         </button>
                     </td>
                 </tr>
+
+                {{-- Baris Credit --}}
+                <tr>
+                    <td>{{ $journal->id }}</td>
+                    <td>{{ \Carbon\Carbon::parse($journal->transaction_date)->format('Y-m-d') }}</td>
+                    <td>{{ $journal->creditAccount?->name ?? '-' }}</td>
+                    <td>{{ $journal->description }}</td>
+                    <td></td>
+                    <td>{{ $journal->creditAccount ? number_format($journal->amount, 0, ',', '.') : '' }}</td>
+                </tr>
             @endforeach
         </tbody>
     </table>
 </div>
+
 
 <!-- Modal Print -->
 <div id="printModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
@@ -99,6 +114,7 @@
     function applyFilters() {
         const fromDate = document.getElementById("fromDate").value;
         const toDate = document.getElementById("toDate").value;
+        const docFilter = document.getElementById("docFilter").value.toLowerCase();
         const descFilter = document.getElementById("descFilter").value.toLowerCase();
         const debitFilter = document.getElementById("debitFilter").value.toLowerCase();
         const creditFilter = document.getElementById("creditFilter").value.toLowerCase();
@@ -106,35 +122,60 @@
         const rows = document.querySelectorAll("#journalTable tbody tr");
 
         rows.forEach(row => {
+            const docNo = row.cells[0].innerText.toLowerCase();
             const date = row.cells[1].innerText.trim();
-            const desc = row.cells[2].innerText.toLowerCase();
-            const debit = row.cells[3].innerText.toLowerCase();
-            const credit = row.cells[4].innerText.toLowerCase();
+            const account = row.cells[2].innerText.toLowerCase();
+            const desc = row.cells[3].innerText.toLowerCase();
+            const debit = row.cells[4].innerText.toLowerCase();
+            const credit = row.cells[5].innerText.toLowerCase();
 
             let show = true;
 
             if (fromDate && date < fromDate) show = false;
             if (toDate && date > toDate) show = false;
+            if (docFilter && !docNo.includes(docFilter)) show = false;
             if (descFilter && !desc.includes(descFilter)) show = false;
-            if (debitFilter && !debit.includes(debitFilter)) show = false;
-            if (creditFilter && !credit.includes(creditFilter)) show = false;
+            if (debitFilter && !account.includes(debitFilter)) show = false;
+            if (creditFilter && !account.includes(creditFilter)) show = false;
 
             row.style.display = show ? "" : "none";
         });
     }
-
+    
     function exportToExcel() {
-        // Clone table & hanya ambil row yang tampil
         let table = document.getElementById("journalTable");
         let clonedTable = table.cloneNode(true);
         let rows = clonedTable.querySelectorAll("tbody tr");
+
         rows.forEach(row => {
             if (row.style.display === "none") row.remove();
+            // hapus kolom Action
+            if (row.cells.length > 6) {
+                row.deleteCell(6);
+            }
+            // konversi angka agar tidak salah parsing
+            row.querySelectorAll("td").forEach((cell, index) => {
+                let text = cell.innerText.trim();
+
+                // cek kalau angka (pakai . sebagai pemisah ribuan)
+                if (/^[\d.]+$/.test(text)) {
+                    // hapus titik → biar jadi angka asli
+                    let num = parseInt(text.replace(/\./g, ""), 10);
+                    cell.innerText = num;
+                }
+            });
         });
 
-        let wb = XLSX.utils.table_to_book(clonedTable, {sheet:"Journal Entries"});
+        // hapus header kolom Action
+        clonedTable.querySelector("thead tr th:last-child").remove();
+
+        // buat workbook
+        let wb = XLSX.utils.table_to_book(clonedTable, { sheet: "Journal Entries" });
+
+        // tulis file
         XLSX.writeFile(wb, 'journal_entries.xlsx');
     }
+
 
     // ===== Modal Print =====
     function openPrintModal(id, date, desc, paidTo, debitId, debitName, creditId, creditName, amount) {
@@ -156,13 +197,13 @@
                     <tbody>
                         <tr style="border: 1px solid #333;">
                             <td style="border: 1px solid #333; padding: 10px;">${debitId}</td>
-                            <td style="border: 1px solid #333; padding: 10px; text-align: center;">D</td>
+                            <td style="border: 1px solid #333; padding: 10px; text-align: center;">40</td>
                             <td style="border: 1px solid #333; padding: 10px;">${debitName}</td>
                             <td style="border: 1px solid #333; padding: 10px; text-align: right;">Rp ${amount}</td>
                         </tr>
                         <tr style="border: 1px solid #333;">
                             <td style="border: 1px solid #333; padding: 10px;">${creditId}</td>
-                            <td style="border: 1px solid #333; padding: 10px; text-align: center;">K</td>
+                            <td style="border: 1px solid #333; padding: 10px; text-align: center;">50</td>
                             <td style="border: 1px solid #333; padding: 10px;">${creditName}</td>
                             <td style="border: 1px solid #333; padding: 10px; text-align: right;">Rp ${amount}</td>
                         </tr>
@@ -194,4 +235,5 @@
         newWin.print();
     }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 @endsection
