@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yayasan Ayah Bigel</title>
+    <title>Ummahatul Mukminin</title>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     @stack('styles')
 </head>
 <body>
+    <div class="logo">
+            <a href="/"><img src="/img/logoyayasan.png" alt="Ummahatul Mukminin Logo"></a>
+        </div>
     <div class="container">
         @include('partials.header')
         @include('partials.nav')

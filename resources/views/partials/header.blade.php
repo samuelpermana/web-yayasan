@@ -1,17 +1,19 @@
-<div class="header" style="display: flex; flex-direction: column; align-items: center; position: relative; padding: 10px;">
-    
-    <!-- Baris Atas: Logout di pojok kanan -->
-    <div style="width: 100%; display: flex; justify-content: flex-end;">
-        <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
-            @csrf
-            <button type="submit" class="btn btn-danger">Logout</button>
-        </form>
-    </div>
+<div class="header1">
 
     <!-- Baris Tengah: Judul dan Deskripsi -->
-    <div style="text-align: center; margin-top: 10px;">
-        <h1>YAYASAN AYAH BIGEL</h1>
-        <p>Comprehensive solution for income tracking, expense management, and financial reporting</p>
-    </div>
+    <div class="corner-decoration top-left"></div>
+        <div class="corner-decoration bottom-right"></div>
+        
+        <!-- Main Content -->
+        <h1>Ummahatul Mukminin</h1>
+        <div class="accent-line"></div>
+        <p>Website Pengelola keuangan yayasan dengan mudah, transparan, dan teratur.</p>
 
+    <div class="bottom-section">
+        <form class="logout-form" action="{{ route('logout') }}" method="POST">
+        @csrf
+            <button type="submit" class="btn1-logout">Logout</button>
+        </form>
+    </div>
+</div>
 </div>

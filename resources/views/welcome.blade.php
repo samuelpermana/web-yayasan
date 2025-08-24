@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yayasan Ayah Bigel</title>
+    <title>Ummahatul Mukminin</title>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>YAYASAN AYAH BIGEL</h1>
-            <p>Comprehensive solution for income tracking, expense management, and financial reporting</p>
+            <h1>Ummahatul Mukminin</h1>
+            <p>Sistem admin untuk pencatatan pemasukan, pengeluaran, dan laporan keuangan Yayasan Ummahatul Mukminin secara transparan dan terstruktur.</p>
         </div>
 
         <div class="nav-tabs">
