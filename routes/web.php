@@ -18,6 +18,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Admin only
 Route::middleware(['auth', 'role:admin'])->group(function () {
 Route::get('/', [HomeController2::class, 'index'])->name('dashboard');
+Route::get('/export-transactions', [HomeController2::class, 'export'])->name('transactions.export');
 Route::get('/transaction', [TransactionController::class, 'index'])->name('transaction.index');
 Route::post('/transaction/store', [TransactionController::class, 'store'])->name('transaction.store');
 Route::post('/deposit/store', [DepositMasterController::class, 'store'])->name('deposit.store');
@@ -25,7 +26,10 @@ Route::delete('/deposit/{id}', [DepositMasterController::class, 'delete'])->name
 Route::get('/journals', [JournalController::class, 'index'])->name('journal.index');
 Route::get('/journals/{id}/edit', [JournalController::class, 'edit'])->name('journal.edit');
 Route::put('/journals/{id}', [JournalController::class, 'update'])->name('journal.update');
-Route::get('/coa', [CoaController::class, 'index'])->name('coa.index'); 
+Route::get('/coa', [CoaController::class, 'index'])->name('coa.index');
+Route::post('/coa', [CoaController::class, 'store'])->name('coa.store');
+Route::put('/coa/{id}', [CoaController::class, 'update'])->name('coa.update');
+Route::delete('/coa/{id}', [CoaController::class, 'destroy'])->name('coa.destroy'); 
 Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
 Route::get('/accounts/{account}/transactions', [AccountController::class, 'transactions']);
 Route::get('/deposit-masters/edit', [DepositMasterController::class, 'edit']);
@@ -38,8 +42,7 @@ Route::delete('/deposit-masters/{id}', [DepositMasterController::class, 'destroy
 
 // User only
 Route::middleware(['auth', 'role:user'])->group(function () {
-
 Route::get('/user/dashboard', [HomeController2::class, 'index'])->name('user.dashboard');
-Route::get('/user/dashboard', [HomeController2::class, 'index'])->name('user.dashboard');
-Route::get('/user/coa', [CoaController::class, 'index'])->name('user.coa'); 
+Route::get('/user/export-transactions', [HomeController2::class, 'export'])->name('user.transactions.export');
+Route::get('/user/coa', [CoaController::class, 'userIndex'])->name('user.coa'); 
 });
