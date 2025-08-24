@@ -256,6 +256,12 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'), // ganti sesuai kebutuhan
             'type' => 'admin',
         ]);
+        User::create([
+            'username' => 'bendahara',
+            'email' => 'bendahara@example.com',
+            'password' => Hash::make('password'), // ganti sesuai kebutuhan
+            'type' => 'admin',
+        ]);
 
         User::create([
             'username' => 'user',
