@@ -10,8 +10,13 @@ class Account extends Model
     use HasFactory;
 
     protected $table = 'accounts';
+    
+    // Allow custom IDs (account numbers)
+    public $incrementing = false;
+    protected $keyType = 'int';
 
     protected $fillable = [
+        'id',
         'name',
         'description',
         'type',
