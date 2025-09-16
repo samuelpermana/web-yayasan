@@ -11,102 +11,210 @@ use Illuminate\Http\Request;
 
 class HomeController2 extends Controller
 {
+    // =======================
+    // 1. TOTAL (GLOBAL)
+    // =======================
     public function index(Request $request)
     {
         $totalTransactions = Transaction::count();
 
-        // Total Income & Expense
-        $totalIncome = Transaction::whereHas('creditAccount', fn($q) => $q->where('type', 'Income'))
-            ->sum('amount');
-        $totalExpense = Transaction::whereHas('debitAccount', fn($q) => $q->where('type', 'Expense'))
-            ->sum('amount');
-        $netIncome = $totalIncome - $totalExpense;
+        $totalIncome  = Transaction::whereHas('creditAccount', fn($q) => $q->where('type', 'Income'))->sum('amount');
+        $totalExpense = Transaction::whereHas('debitAccount', fn($q) => $q->where('type', 'Expense'))->sum('amount');
+        $netIncome    = $totalIncome - $totalExpense;
 
-        // Ambil semua akun dengan transaksi
         $accounts = Account::with(['debitTransactions', 'creditTransactions'])->get();
 
-        // Filter berdasarkan type
         $assets      = $accounts->where('type', 'Asset');
         $liabilities = $accounts->where('type', 'Liability');
         $equities    = $accounts->where('type', 'Equity');
 
-        // Tambahkan Net Income ke Retained Earnings
-        $retainedEarnings = $equities->firstWhere('name', 'Laba Ditahan');
-        if ($retainedEarnings) {
-            // Add net income to the initial value so balance calculation includes it
-            $retainedEarnings->setAttribute('nilai_awal', $retainedEarnings->getAttribute('nilai_awal') + $netIncome);
+        // Laba Ditahan
+        $retained = $equities->firstWhere('name', 'Laba Ditahan');
+        if ($retained) {
+            $retained->setAttribute('nilai_awal', $retained->getAttribute('nilai_awal') + $netIncome);
         } else {
             $equities->push(new Account([
-                'name'    => 'Laba Ditahan',
-                'type'    => 'Equity',
+                'name'       => 'Laba Ditahan',
+                'type'       => 'Equity',
                 'nilai_awal' => $netIncome,
             ]));
         }
 
-        // Hitung total
         $totalAssets      = $assets->sum->balance;
         $totalLiabilities = $liabilities->sum->balance;
         $totalEquity      = $equities->sum->balance;
         $balanceCheck     = $totalAssets - ($totalLiabilities + $totalEquity);
 
-        // Apply filters to transactions
-        $transactionsQuery = Transaction::with(['debitAccount', 'creditAccount', 'depositMaster']);
-        
-        // Filter by date range
-        if ($request->filled('date_from')) {
-            $transactionsQuery->whereDate('transaction_date', '>=', $request->date_from);
-        }
-        
-        if ($request->filled('date_to')) {
-            $transactionsQuery->whereDate('transaction_date', '<=', $request->date_to);
-        }
-        
-        // Filter by description
-        if ($request->filled('description')) {
-            $transactionsQuery->where('description', 'like', '%' . $request->description . '%');
-        }
-        
-        // Filter by debit account
-        if ($request->filled('debit_account_id')) {
-            $transactionsQuery->where('debit_account_id', $request->debit_account_id);
-        }
-        
-        // Filter by credit account
-        if ($request->filled('credit_account_id')) {
-            $transactionsQuery->where('credit_account_id', $request->credit_account_id);
-        }
+        // Transaksi recent
+        $transactions = Transaction::with(['debitAccount', 'creditAccount', 'depositMaster'])
+            ->orderBy('id', 'desc')
+            ->paginate(15);
 
-        // Get paginated filtered transactions (15 per page) - sorted by ID ascending (oldest first)
-        $transactions = $transactionsQuery->orderBy('id', 'asc')->paginate(15);
-
-        // Keep track of current filters for pagination links
-        $transactions->appends($request->only(['date_from', 'date_to', 'description', 'debit_account_id', 'credit_account_id']));
-
-        // For dashboard display, we'll use the paginated results
-        $recentTransactions = $transactions;
-
-        // Semua deposit master
         $deposit_masters = DepositMaster::all();
 
-        return view('dashboard', [
+        $data = [
             'total_transactions' => $totalTransactions,
-            'balance'            => $totalAssets, // alias total aset
+            'balance'            => $totalAssets,
             'total_income'       => $totalIncome,
             'total_expenses'     => $totalExpense,
             'net_income'         => $netIncome,
-            'assets'             => $assets,
-            'liabilities'        => $liabilities,
-            'equities'           => $equities,
-            'transactions'       => $transactions,
-            'recentTransactions' => $recentTransactions,
-            'accounts'           => $accounts,
-            'deposit_masters'    => $deposit_masters,
             'total_assets'       => $totalAssets,
             'total_liabilities'  => $totalLiabilities,
             'total_equity'       => $totalEquity,
             'balance_check'      => $balanceCheck,
-            'filters'            => $request->only(['date_from', 'date_to', 'description', 'debit_account_id', 'credit_account_id']),
-        ]);
+            'transactions'       => $transactions,
+            'accounts'           => $accounts,
+            'deposit_masters'    => $deposit_masters,
+        ];
+
+        // Debug JSON
+        // return response()->json($data);
+
+        return view('dashboard', $data);
+    }
+
+    // =======================
+    // 2. MAHAD
+    // =======================
+    public function dashboardMahad(Request $request)
+    {
+        $role = 'mahad';
+
+        $accounts = Account::where('role_area', $role)->with(['debitTransactions', 'creditTransactions'])->get();
+
+        $assets      = $accounts->where('type', 'Asset');
+        $liabilities = $accounts->where('type', 'Liability');
+        $equities    = $accounts->where('type', 'Equity');
+
+        $income  = Transaction::whereHas('creditAccount', fn($q) => $q->where('type', 'Income')->where('role_area', $role))->sum('amount');
+        $expense = Transaction::whereHas('debitAccount', fn($q) => $q->where('type', 'Expense')->where('role_area', $role))->sum('amount');
+        $net     = $income - $expense;
+
+        $retained = $equities->firstWhere('name', 'Laba Ditahan');
+        if ($retained) {
+            $retained->setAttribute('nilai_awal', $retained->getAttribute('nilai_awal') + $net);
+        } else {
+            $equities->push(new Account([
+                'name'       => 'Laba Ditahan',
+                'type'       => 'Equity',
+                'role_area'  => $role,
+                'nilai_awal' => $net,
+            ]));
+        }
+
+        $totalAssets      = $assets->sum->balance;
+        $totalLiabilities = $liabilities->sum->balance;
+        $totalEquity      = $equities->sum->balance;
+        $balanceCheck     = $totalAssets - ($totalLiabilities + $totalEquity);
+
+        // 🔹 Hitung total transaksi (supaya tidak undefined di partial stats)
+        $totalTransactions = Transaction::where(function($q) use ($role) {
+            $q->whereHas('debitAccount', fn($qq) => $qq->where('role_area', $role))
+            ->orWhereHas('creditAccount', fn($qq) => $qq->where('role_area', $role));
+        })->count();
+
+        // 🔹 Tambahkan filter transaksi
+        $transactions = Transaction::with(['debitAccount', 'creditAccount', 'depositMaster'])
+            ->where(function ($q) use ($role) {
+                $q->whereHas('debitAccount', fn($qq) => $qq->where('role_area', $role))
+                ->orWhereHas('creditAccount', fn($qq) => $qq->where('role_area', $role));
+            })
+            ->when($request->date_from, fn($q) => $q->whereDate('transaction_date', '>=', $request->date_from))
+            ->when($request->date_to, fn($q) => $q->whereDate('transaction_date', '<=', $request->date_to))
+            ->when($request->description, fn($q) => $q->where('description', 'like', "%{$request->description}%"))
+            ->when($request->debit_account_id, fn($q) => $q->where('debit_account_id', $request->debit_account_id))
+            ->when($request->credit_account_id, fn($q) => $q->where('credit_account_id', $request->credit_account_id))
+            ->orderBy('id', 'desc')
+            ->paginate(15);
+
+        $data = [
+            'total_transactions' => $totalTransactions, // ✅ ini penting
+            'total_income'       => $income,
+            'total_expenses'     => $expense,
+            'net_income'         => $net,
+            'total_assets'       => $totalAssets,
+            'total_liabilities'  => $totalLiabilities,
+            'total_equity'       => $totalEquity,
+            'balance_check'      => $balanceCheck,
+            'transactions'       => $transactions,
+            'accounts'           => $accounts,
+        ];
+
+        return view('dashboard-mahad', $data);
+    }
+
+    // =======================
+    // 3. YAYASAN
+    // =======================
+    public function dashboardYayasan(Request $request)
+    {
+        $role = 'yayasan';
+
+        $accounts = Account::where('role_area', $role)->with(['debitTransactions', 'creditTransactions'])->get();
+
+        $assets      = $accounts->where('type', 'Asset');
+        $liabilities = $accounts->where('type', 'Liability');
+        $equities    = $accounts->where('type', 'Equity');
+
+        $income  = Transaction::whereHas('creditAccount', fn($q) => $q->where('type', 'Income')->where('role_area', $role))->sum('amount');
+        $expense = Transaction::whereHas('debitAccount', fn($q) => $q->where('type', 'Expense')->where('role_area', $role))->sum('amount');
+        $net     = $income - $expense;
+
+        $retained = $equities->firstWhere('name', 'Laba Ditahan');
+        if ($retained) {
+            $retained->setAttribute('nilai_awal', $retained->getAttribute('nilai_awal') + $net);
+        } else {
+            $equities->push(new Account([
+                'name'       => 'Laba Ditahan',
+                'type'       => 'Equity',
+                'role_area'  => $role,
+                'nilai_awal' => $net,
+            ]));
+        }
+
+        $totalAssets      = $assets->sum->balance;
+        $totalLiabilities = $liabilities->sum->balance;
+        $totalEquity      = $equities->sum->balance;
+        $balanceCheck     = $totalAssets - ($totalLiabilities + $totalEquity);
+
+        // 🔹 Hitung total transaksi (supaya tidak undefined di partial stats)
+        $totalTransactions = Transaction::where(function($q) use ($role) {
+            $q->whereHas('debitAccount', fn($qq) => $qq->where('role_area', $role))
+            ->orWhereHas('creditAccount', fn($qq) => $qq->where('role_area', $role));
+        })->count();
+
+        // 🔹 Tambahkan filter transaksi
+        $transactions = Transaction::with(['debitAccount', 'creditAccount', 'depositMaster'])
+            ->where(function ($q) use ($role) {
+                $q->whereHas('debitAccount', fn($qq) => $qq->where('role_area', $role))
+                ->orWhereHas('creditAccount', fn($qq) => $qq->where('role_area', $role));
+            })
+            ->when($request->date_from, fn($q) => $q->whereDate('transaction_date', '>=', $request->date_from))
+            ->when($request->date_to, fn($q) => $q->whereDate('transaction_date', '<=', $request->date_to))
+            ->when($request->description, fn($q) => $q->where('description', 'like', "%{$request->description}%"))
+            ->when($request->debit_account_id, fn($q) => $q->where('debit_account_id', $request->debit_account_id))
+            ->when($request->credit_account_id, fn($q) => $q->where('credit_account_id', $request->credit_account_id))
+            ->orderBy('id', 'desc')
+            ->paginate(15);
+
+        $data = [
+            'total_transactions' => $totalTransactions, // ✅ ini penting
+            'total_income'       => $income,
+            'total_expenses'     => $expense,
+            'net_income'         => $net,
+            'total_assets'       => $totalAssets,
+            'total_liabilities'  => $totalLiabilities,
+            'total_equity'       => $totalEquity,
+            'balance_check'      => $balanceCheck,
+            'transactions'       => $transactions,
+            'accounts'           => $accounts,
+        ];
+
+
+        // Debug JSON
+        // return response()->json($data);
+
+        return view('dashboard-yayasan', $data);
     }
 
     public function export(Request $request)

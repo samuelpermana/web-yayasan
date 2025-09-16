@@ -18,6 +18,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Admin only
 Route::middleware(['auth', 'role:admin'])->group(function () {
 Route::get('/', [HomeController2::class, 'index'])->name('dashboard');
+Route::get('/mahad', [HomeController2::class, 'dashboardMahad'])->name('dashboard.mahad');
+Route::get('/yayasan', [HomeController2::class, 'dashboardYayasan'])->name('dashboard.yayasan');
 Route::get('/export-transactions', [HomeController2::class, 'export'])->name('transactions.export');
 Route::get('/transaction', [TransactionController::class, 'index'])->name('transaction.index');
 Route::post('/transaction/store', [TransactionController::class, 'store'])->name('transaction.store');

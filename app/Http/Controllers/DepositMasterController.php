@@ -27,7 +27,8 @@ class DepositMasterController extends Controller
         $request->validate([
             'debit_account_id' => 'required|exists:accounts,id',
             'credit_account_id' => 'required|exists:accounts,id',
-            'default_amount' => 'required|numeric',
+            'default_amount'   => 'required|numeric',
+            'role_area'        => 'required|in:yayasan,mahad',
         ]);
 
         DepositMaster::create($request->all());
@@ -41,36 +42,35 @@ class DepositMasterController extends Controller
         $accounts = Account::all();
         return view('deposit_masters.edit', compact('deposit', 'accounts'));
     }
-public function update(Request $request, $id)
-{
-    try {
-        $request->validate([
-            'debit_account_id' => 'required|exists:accounts,id',
-            'credit_account_id' => 'required|exists:accounts,id',
-            'default_amount' => 'required|numeric',
-        ]);
 
-        $depositMaster = DepositMaster::findOrFail($id);
-        $depositMaster->update($request->all());
+    public function update(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'debit_account_id' => 'required|exists:accounts,id',
+                'credit_account_id' => 'required|exists:accounts,id',
+                'default_amount'   => 'required|numeric',
+                'role_area'        => 'required|in:yayasan,mahad', // ✅ tambahkan validasi role_area
+            ]);
 
-        // kalau berhasil
-        return redirect()
-            ->route('dm.index')
-            ->with('success', 'Deposit Master updated successfully.');
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        // kalau gagal validasi
-        return response()->json([
-            'status' => 'validation_error',
-            'errors' => $e->errors()
-        ], 422);
-    } catch (\Exception $e) {
-        // kalau error lain
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage()
-        ], 500);
+            $depositMaster = DepositMaster::findOrFail($id);
+            $depositMaster->update($request->all());
+
+            return redirect()
+                ->route('dm.index')
+                ->with('success', 'Deposit Master updated successfully.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => 'validation_error',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
-}
 
     public function destroy($id)
     {

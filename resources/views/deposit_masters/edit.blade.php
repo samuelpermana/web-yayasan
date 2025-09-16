@@ -37,6 +37,7 @@
                 <option value="">-- Select Debit Account --</option>
                 @foreach ($accounts as $acc)
                     <option value="{{ $acc->id }}" 
+                        data-role="{{ $acc->role_area }}" {{-- tambahkan atribut role --}}
                         {{ old('debit_account_id', $deposit->debit_account_id) == $acc->id ? 'selected' : '' }}>
                         {{ $acc->id }} - {{ $acc->name }}
                     </option>
@@ -51,6 +52,7 @@
                 <option value="">-- Select Credit Account --</option>
                 @foreach ($accounts as $acc)
                     <option value="{{ $acc->id }}" 
+                        data-role="{{ $acc->role_area }}"
                         {{ old('credit_account_id', $deposit->credit_account_id) == $acc->id ? 'selected' : '' }}>
                         {{ $acc->id }} - {{ $acc->name }}
                     </option>
@@ -58,15 +60,46 @@
             </select>
         </div>
 
+        <!-- Role Area -->
+        <div class="form-group">
+            <label for="roleArea">Role Area</label>
+            <select id="roleArea" name="role_area" required>
+                <option value="yayasan" {{ old('role_area', $deposit->role_area) == 'yayasan' ? 'selected' : '' }}>Yayasan</option>
+                <option value="mahad" {{ old('role_area', $deposit->role_area) == 'mahad' ? 'selected' : '' }}>Mahad</option>
+            </select>
+        </div>
+
         <!-- Buttons -->
         <div class="mt-3">
             <button type="submit" class="btn btn-success">Update Deposit</button>
-                        <form action="{{ route('dm.index') }}" method="GET" style="display:inline-block;">
-                            <button type="submit" class="btn btn-warning btn-sm">
-                                Cancel
-                            </button>
-                        </form>
+            <a href="{{ route('dm.index') }}" class="btn btn-warning btn-sm">Cancel</a>
         </div>
     </form>
 </div>
+
+{{-- Script filter akun by role --}}
+<script>
+    function filterAccounts() {
+        let selectedRole = document.getElementById('roleArea').value;
+
+        ['debitAccountModal', 'creditAccountModal'].forEach(selectId => {
+            let select = document.getElementById(selectId);
+            Array.from(select.options).forEach(opt => {
+                if (opt.value === "") return; // skip placeholder
+                opt.style.display = (opt.getAttribute('data-role') === selectedRole) ? 'block' : 'none';
+            });
+
+            // kalau option terpilih tidak sesuai role, reset
+            if (select.value && select.selectedOptions[0].getAttribute('data-role') !== selectedRole) {
+                select.value = "";
+            }
+        });
+    }
+
+    // Jalankan saat role_area berubah
+    document.getElementById('roleArea').addEventListener('change', filterAccounts);
+
+    // Jalankan pertama kali saat load
+    window.addEventListener('load', filterAccounts);
+</script>
 @endsection

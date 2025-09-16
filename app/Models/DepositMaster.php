@@ -17,6 +17,7 @@ class DepositMaster extends Model
         'default_amount',
         'debit_account_id',
         'credit_account_id',
+        'role_area',
     ];
 
     public function transactions()

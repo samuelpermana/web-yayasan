@@ -21,12 +21,16 @@ return new class extends Migration
             $table->string('debit_account_id')->nullable();
             $table->string('credit_account_id')->nullable();
 
+            // Role area
+            $table->enum('role_area', ['yayasan', 'mahad'])->default('yayasan');
+
             $table->timestamps();
 
             // Foreign key ke tabel accounts (id = string)
             $table->foreign('debit_account_id')->references('id')->on('accounts')->onDelete('set null');
             $table->foreign('credit_account_id')->references('id')->on('accounts')->onDelete('set null');
         });
+
 
     }
 

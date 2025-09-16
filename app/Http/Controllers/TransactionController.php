@@ -90,7 +90,8 @@ class TransactionController extends Controller
             'amount'                => 'required|numeric|min:0',
             'credit_account_id'     => 'required|exists:accounts,id',
             'debit_account_id'      => 'required|exists:accounts,id',
-            'from_to'               => 'required|string',
+            'paid_to_source'        => 'required|string',
+            'role_area'             => 'required|in:mahad,yayasan', // validasi tambahan
         ];
 
         try {
@@ -104,24 +105,24 @@ class TransactionController extends Controller
                 'amount'                => $validated['amount'],
                 'credit_account_id'     => $validated['credit_account_id'],
                 'debit_account_id'      => $validated['debit_account_id'],
-                'from_to'               => $validated['from_to'],
+                'paid_to_source'        => $validated['paid_to_source'], // pakai ini
+                'role_area'             => $validated['role_area'], // simpan role_area
             ]);
 
             return redirect()->route('transaction.index')
-                             ->with('success', 'Transaction created successfully.');
+                            ->with('success', 'Transaction created successfully.');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Kalau validasi gagal, return JSON error
             return response()->json([
                 'status' => 'error',
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
-            // Kalau ada error lain, return JSON debug
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
             ], 500);
         }
     }
+
 }

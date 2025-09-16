@@ -15,7 +15,8 @@ return new class extends Migration
             $table->string('id')->primary();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->enum('type', ['Asset', 'Liability', 'Income', 'Expense']);
+            $table->enum('type', ['Asset', 'Liability', 'Income', 'Expense','Equity']);
+            $table->enum('role_area', ['yayasan', 'mahad']);
             $table->decimal('nilai_awal', 15, 2)->default(0);
             $table->timestamps();
         });

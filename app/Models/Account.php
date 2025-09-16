@@ -20,6 +20,7 @@ class Account extends Model
         'name',
         'description',
         'type',
+        'role_area',
         'nilai_awal',
     ];
 

@@ -29,6 +29,14 @@
             <label>Credit Account:</label>
             <input type="text" id="creditFilter" placeholder="Cari credit..." onkeyup="applyFilters()">
         </div>
+                <div>
+            <label>Role Area:</label>
+            <select id="roleFilter" onchange="applyFilters()">
+                <option value="">All</option>
+                <option value="mahad">Mahad</option>
+                <option value="yayasan">Yayasan</option>
+            </select>
+        </div>
     </div>
 
     <!-- Tombol Export Excel -->
@@ -37,13 +45,14 @@
             Export to Excel
         </button>
     </div>
-
+    <div style="overflow-x:auto;">
     <table class="table" id="journalTable">
         <thead>
             <tr>
                 <th>Document No.</th>
                 <th>Date</th>
-                <th>Account</th>
+                <th>GL Account</th>
+                <th>Area</th>
                 <th>Description</th>
                 <th>Debit</th>
                 <th>Credit</th>
@@ -57,9 +66,17 @@
                     <td>{{ $journal->id }}</td>
                     <td>{{ \Carbon\Carbon::parse($journal->transaction_date)->format('Y-m-d') }}</td>
                     <td>{{ $journal->debitAccount?->name ?? '-' }}</td>
+
+                    {{-- Area sekali saja pakai rowspan --}}
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">
+                        {{ $journal->role_area }}
+                    </td>
+
                     <td>{{ $journal->description }}</td>
                     <td>{{ $journal->debitAccount ? number_format($journal->amount, 0, ',', '.') : '' }}</td>
                     <td></td>
+
+                    {{-- Action sekali saja pakai rowspan --}}
                     <td rowspan="2" style="vertical-align: middle; text-align: center;">
                         <a href="{{ route('journal.edit', $journal->id) }}">
                             <button type="button" title="Edit">Edit</button>
@@ -86,6 +103,7 @@
                     <td>{{ $journal->id }}</td>
                     <td>{{ \Carbon\Carbon::parse($journal->transaction_date)->format('Y-m-d') }}</td>
                     <td>{{ $journal->creditAccount?->name ?? '-' }}</td>
+                    {{-- td role_area dihapus, karena sudah rowspan --}}
                     <td>{{ $journal->description }}</td>
                     <td></td>
                     <td>{{ $journal->creditAccount ? number_format($journal->amount, 0, ',', '.') : '' }}</td>
@@ -93,6 +111,8 @@
             @endforeach
         </tbody>
     </table>
+</div>
+
 </div>
 
 

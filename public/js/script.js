@@ -5,54 +5,6 @@
         let depositMaster = [];
         let documentCounter = 1;
         
-        // Chart of Accounts based on provided data
-        const chartOfAccounts = [
-            {number: '1100100', name: 'Kas', description: 'Transaksi untuk pembayaran dan penerimaan uang melalui Kas', type: 'Asset'},
-            {number: '1100101', name: 'Money Intransit', description: 'Transaksi Kas penampungan atas penerimaan dan pengeluaran', type: 'Asset'},
-            {number: '1200100', name: 'Bank BSI', description: 'Transaksi untuk pembayaran dan penerimaan uang melalui Transfer bank', type: 'Asset'},
-            {number: '1300100', name: 'Deposito Bank BSI', description: 'Penempatan Deposito melalui bank', type: 'Asset'},
-            {number: '1400100', name: 'Piutang Karyawan', description: 'Piutang ke karyawan atas yang belum terima pembayarannya', type: 'Asset'},
-            {number: '1400101', name: 'Piutang Lain-Lain', description: 'Piutang ke pihak ke tiga atas yang belum terima pembayarannya', type: 'Asset'},
-            {number: '1500100', name: 'Uang Muka', description: 'Transaksi Uang muka untuk biaya operasional kantor', type: 'Asset'},
-            {number: '2100100', name: 'Asset Bangunan', description: 'Transaksi untuk pembangunan gedung', type: 'Asset'},
-            {number: '2200100', name: 'Asset Computer', description: 'Transaksi untuk pembelian Computer dan sejenis nya', type: 'Asset'},
-            {number: '2300100', name: 'Asset Furniture', description: 'Transaksi untuk pembelian meja,kursi dan sejenis nya', type: 'Asset'},
-            {number: '2400100', name: 'Asset Transportasi', description: 'Transaksi untuk pembelian alat-alat transportasi', type: 'Asset'},
-            {number: '2900100', name: 'Pinjaman Koperasi', description: 'Pinjaman uang atau barang melalaui koperasi', type: 'Liability'},
-            {number: '3100100', name: 'Titipan', description: 'Transaksi atas titipan Uang kepada pihak pertama', type: 'Liability'},
-            {number: '4100100', name: 'Hutang Dagang', description: 'Hutang ke pihak ke tiga atas hutang yang belum di bayarkan', type: 'Liability'},
-            {number: '6100100', name: 'Pendapatan SPP', description: 'Transaksi atas penerimaan SPP dan Daftar ulang santri', type: 'Income'},
-            {number: '6100101', name: 'Pendapatan Lain-lain', description: 'Transaksi atas penerimaan Lain-lain', type: 'Income'},
-            {number: '7100101', name: 'Biaya Gaji', description: 'Transaksi atas pembayaran gaji karyawan', type: 'Expense'},
-            {number: '7100102', name: 'Biaya Lembur', description: 'Transaksi atas pembayaran lembur karyawan', type: 'Expense'},
-            {number: '7100103', name: 'Biaya Transportasi', description: 'Transaksi atas biaya-biaya terkait dengan transportasi', type: 'Expense'},
-            {number: '7100104', name: 'Biaya Pengobatan', description: 'Transaksi atas pengobatan karyawan dan Santri', type: 'Expense'},
-            {number: '7100105', name: 'Biaya THR', description: 'Transaksi atas pembayaran THR karyawan', type: 'Expense'},
-            {number: '7100106', name: 'Biaya Astek', description: 'Transaksi atas pembayaran Astek karyawan', type: 'Expense'},
-            {number: '7100107', name: 'Biaya BPJS', description: 'Transaksi atas pembayaran BPJS karyawan', type: 'Expense'},
-            {number: '7100108', name: 'Biaya Training', description: 'Transaksi atas pembayaran Training karyawan', type: 'Expense'},
-            {number: '7100109', name: 'Biaya Rumah Sakit', description: 'Transaksi atas pembayaran Rumah sakit karyawan', type: 'Expense'},
-            {number: '7100110', name: 'Biaya PBB', description: 'Transaksi atas pembayaran PBB', type: 'Expense'},
-            {number: '7100111', name: 'Biaya Makan dan Minum', description: 'Transaksi atas pembayaran Makan dan minum', type: 'Expense'},
-            {number: '7100112', name: 'Biaya Pembelian ATK', description: 'Transaksi atas pembayaran pembelian ATK', type: 'Expense'},
-            {number: '7100113', name: 'Biaya Listrik', description: 'Transaksi atas pembayaran Listrik', type: 'Expense'},
-            {number: '7100114', name: 'Biaya Maintenance', description: 'Transaksi atas pembayaran pemeliharaan gedung dan sejenis nya', type: 'Expense'},
-            {number: '7100115', name: 'Biaya Telephone', description: 'Transaksi atas pembayaran Telephone kantor', type: 'Expense'},
-            {number: '7100116', name: 'Biaya Internet', description: 'Transaksi atas pembayaran Internet kantor', type: 'Expense'},
-            {number: '7100117', name: 'Biaya Foto copy', description: 'Transaksi atas pembayaran Foto copy dan sejenis nya', type: 'Expense'},
-            {number: '7100118', name: 'Biaya Pengiriman', description: 'Transaksi atas pembayaran pengirima barang dan sejenis nya', type: 'Expense'},
-            {number: '7100119', name: 'Biaya Pengamanan', description: 'Transaksi atas pembayaran keamanan dan termasuk gaji security nya', type: 'Expense'},
-            {number: '7100120', name: 'Biaya Pemakaian air PAM', description: 'Transaksi atas pembayaran pemakaian air PAM', type: 'Expense'},
-            {number: '7100121', name: 'Biaya Ifthor Puasa', description: 'Transaksi atas pemberian makan buka puasa', type: 'Expense'},
-            {number: '7100122', name: 'Biaya Ujian', description: 'Transaksi atas biaya ujian', type: 'Expense'},
-            {number: '7100123', name: 'Biaya PPDB', description: 'Transaksi atas biaya PPDB', type: 'Expense'},
-            {number: '7100124', name: 'Biaya Cetakan', description: 'Transaksi atas pembayaran pencetakan', type: 'Expense'},
-            {number: '7100125', name: 'Biaya Kegiatan santri', description: 'Transaksi atas Outing Guru dan Santri', type: 'Expense'},
-            {number: '7100126', name: 'Biaya Konsumsi', description: 'Transaksi atas pembayaran konsumsi', type: 'Expense'},
-            {number: '7100200', name: 'Biaya Bank', description: 'Transaksi atas pemdebitan biaya administrasi bank', type: 'Expense'},
-            {number: '7100999', name: 'Biaya Lain-lain', description: 'Transaksi atas pembayaran biaya oprasional lain-lain nya', type: 'Expense'},
-            {number: '8100100', name: 'Bunga Bank BSI', description: 'Pendapatan bunga bank', type: 'Income'}
-        ];
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {

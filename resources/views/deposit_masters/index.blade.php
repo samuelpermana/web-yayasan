@@ -25,13 +25,26 @@
             <input type="number" name="default_amount" id="depositDefaultAmount" step="0.01" required>
         </div>
 
+        <!-- Role Area Selection -->
+        <div class="form-group">
+            <label for="roleArea">Role Area</label>
+            <select name="role_area" id="roleArea" required>
+                <option value="">-- Select Role Area --</option>
+                <option value="yayasan">Yayasan</option>
+                <option value="mahad">Mahad</option>
+            </select>
+        </div>
+
         <!-- Debit Account -->
         <div class="form-group">
             <label for="debitAccountModal">Debit Account</label>
             <select id="debitAccountModal" name="debit_account_id" required>
                 <option value="">-- Select Debit Account --</option>
                 @foreach ($accounts as $acc)
-                    <option value="{{ $acc->id }}">{{ $acc->id }} - {{ $acc->name }}</option>
+                    <option value="{{ $acc->id }}" data-role_area="{{ $acc->role_area }}">
+                        {{ $acc->id }} - {{ $acc->name }}
+                    </option>
+
                 @endforeach
             </select>
         </div>
@@ -42,7 +55,9 @@
             <select id="creditAccountModal" name="credit_account_id" required>
                 <option value="">-- Select Credit Account --</option>
                 @foreach ($accounts as $acc)
-                    <option value="{{ $acc->id }}">{{ $acc->id }} - {{ $acc->name }}</option>
+                    <option value="{{ $acc->id }}" data-role_area="{{ $acc->role_area }}">
+                        {{ $acc->id }} - {{ $acc->name }}
+                    </option>
                 @endforeach
             </select>
         </div>
@@ -57,6 +72,7 @@
             <tr>
                 <th>Number</th>
                 <th>Description</th>
+                <th>Role Area</th>
                 <th>Debit</th>
                 <th>Credit</th>
                 <th>Default Amount</th>
@@ -68,6 +84,7 @@
                 <tr>
                     <td>{{ $deposit->number }}</td>
                     <td>{{ $deposit->description }}</td>
+                    <td>{{ ucfirst($deposit->role_area) }}</td>
                     <td>
                         @if($deposit->debitAccount)
                             {{ $deposit->debitAccount->id }} - {{ $deposit->debitAccount->name }} ({{ $deposit->debitAccount->type }})
@@ -75,7 +92,6 @@
                             -
                         @endif
                     </td>
-
                     <td>
                         @if($deposit->creditAccount)
                             {{ $deposit->creditAccount->id }} - {{ $deposit->creditAccount->name }} ({{ $deposit->creditAccount->type }})
@@ -83,7 +99,6 @@
                             -
                         @endif
                     </td>
-
                     <td>{{ number_format($deposit->default_amount, 2) }}</td>
                     <td>
                         <form action="{{ route('dm.edit', $deposit->id) }}" method="GET" style="display:inline-block;">
@@ -104,5 +119,54 @@
         </tbody>
     </table>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const roleAreaSelect = document.getElementById('roleArea');
+    const debitAccountSelect = document.getElementById('debitAccountModal');
+    const creditAccountSelect = document.getElementById('creditAccountModal');
+    
+    // Function to filter accounts based on selected role area
+    function filterAccounts() {
+        const selectedArea = roleAreaSelect.value;
+        
+        // Filter debit accounts
+        Array.from(debitAccountSelect.options).forEach(option => {
+            if (option.value === '') return; // Skip the default option
+            
+            if (selectedArea === '' || option.getAttribute('data-role_area') === selectedArea) {
+                option.style.display = 'block';
+            } else {
+                option.style.display = 'none';
+                // Reset selection if the currently selected option doesn't match
+                if (option.selected) {
+                    debitAccountSelect.value = '';
+                }
+            }
+        });
+        
+        // Filter credit accounts
+        Array.from(creditAccountSelect.options).forEach(option => {
+            if (option.value === '') return; // Skip the default option
+            
+            if (selectedArea === '' || option.getAttribute('data-role_area') === selectedArea) {
+                option.style.display = 'block';
+            } else {
+                option.style.display = 'none';
+                // Reset selection if the currently selected option doesn't match
+                if (option.selected) {
+                    creditAccountSelect.value = '';
+                }
+            }
+        });
+    }
+    
+    // Add event listener for role area change
+    roleAreaSelect.addEventListener('change', filterAccounts);
+    
+    // Initial filter on page load
+    filterAccounts();
+});
+</script>
 
 @endsection

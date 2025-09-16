@@ -32,6 +32,7 @@
     <div id="accountDetails" style="margin-top:20px;">
         <h4>Account Info</h4>
         <p><strong>GL Account:</strong> {{ $selectedAccount->name ?? '-' }} ({{ $selectedAccount->type ?? '-' }})</p>
+        <p><strong>Role Area:</strong> {{ $selectedAccount->role_area ?? '-' }}</p>
         <p><strong>Description:</strong> {{ $selectedAccount->description ?? '-' }}</p>
         <p><strong>Saldo Awal:</strong> Rp {{ isset($selectedAccount) ? number_format($selectedAccount->nilai_awal,0,',','.') : '-' }}</p>
         <p><strong>Total Saldo Akhir:</strong> Rp {{ isset($totalSaldo) ? number_format($totalSaldo,0,',','.') : '-' }}</p>
@@ -54,6 +55,7 @@
                 <tr>
                     <th>Date</th>
                     <th>Description</th>
+                    <th>Role Area</th> <!-- ✅ ditambahkan -->
                     <th>Debit</th>
                     <th>Credit</th>
                     <th>Saldo</th>
@@ -75,15 +77,16 @@
                         }
                     @endphp
                     <tr>
-                        <td>{{ $tx->transaction_date }}</td>
+                        <td>{{ $tx->transaction_date->format('d-m-Y') }}</td>
                         <td>{{ $tx->description }}</td>
+                        <td>{{ $tx->role_area ?? '-' }}</td>
                         <td>{{ $debit ? number_format($debit,0,',','.') : '-' }}</td>
                         <td>{{ $credit ? number_format($credit,0,',','.') : '-' }}</td>
                         <td>{{ number_format($runningBalance,0,',','.') }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" style="text-align:center;">-</td>
+                        <td colspan="6" style="text-align:center;">-</td>
                     </tr>
                 @endforelse
             </tbody>

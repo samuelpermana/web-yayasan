@@ -21,8 +21,9 @@
                                     data-description="{{ $deposit_master->description }}"
                                     data-amount="{{ $deposit_master->default_amount }}"
                                     data-debit="{{ $deposit_master->debit_account_id }}"
-                                    data-credit="{{ $deposit_master->credit_account_id }}">
-                                {{ $deposit_master->id }} - {{ $deposit_master->description }}
+                                    data-credit="{{ $deposit_master->credit_account_id }}"
+                                    data-role="{{ $deposit_master->role_area }}">
+                                {{ $deposit_master->id }} - {{ $deposit_master->description }} - {{ $deposit_master->role_area }}
                             </option>
                         @endforeach
                     </select>
@@ -46,7 +47,7 @@
                     <select id="creditAccount" name="credit_account_id">
                         <option value="">Select Credit Account</option>
                         @foreach($accounts as $account)
-                            <option value="{{ $account->id }}">{{ $account->id }} - {{ $account->name }} ({{ $account->type }})</option>
+                            <option value="{{ $account->id }}" data-role="{{ $account->role_area }}">{{ $account->id }} - {{ $account->name }} ({{ $account->type }}) [{{ $account->role_area }}]</option>
                         @endforeach
                     </select>
                 </div>
@@ -55,18 +56,28 @@
                     <select id="debitAccount" name="debit_account_id">
                         <option value="">Select Debit Account</option>
                         @foreach($accounts as $account)
-                            <option value="{{ $account->id }}">{{ $account->id }} - {{ $account->name }} ({{ $account->type }})</option>
+                            <option value="{{ $account->id }}" data-role="{{ $account->role_area }}">{{ $account->id }} - {{ $account->name }} ({{ $account->type }}) [{{ $account->role_area }}]</option>
                         @endforeach
                     </select>
                 </div>
             </div>
-
             <div class="form-row">
                 <div class="form-group">
-                    <label for="transactionFromTo">Received from / Paid to</label>
-                    <input type="text" id="transactionFromTo" name="from_to" placeholder="Enter name or source" required>
+                    <label for="paidToSource">Received from / Paid to</label>
+                    <input type="text" id="paidToSource" name="paid_to_source" placeholder="Enter name or source" required>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="roleArea">Role Area</label>
+                    <select id="roleArea" name="role_area" required>
+                        <option value="">Select Role Area</option>
+                        <option value="mahad">Mahad</option>
+                        <option value="yayasan">Yayasan</option>
+                    </select>
                 </div>
             </div>
+
 
             <button type="submit">Post Income Transaction</button>
             <button type="button" onclick="window.location.href='{{ route('dm.index') }}'">Manage Deposit Master</button>
@@ -84,6 +95,94 @@
         <input type="file" id="incomeUpload" style="display: none;" accept=".csv,.xlsx,.xls" onchange="handleFileUpload(this, 'income')">
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Simpan semua opsi akun asli
+    const creditAccount = document.getElementById('creditAccount');
+    const debitAccount = document.getElementById('debitAccount');
+    const roleAreaSelect = document.getElementById('roleArea');
+    
+    // Simpan semua opsi akun untuk referensi
+    const allCreditOptions = Array.from(creditAccount.options);
+    const allDebitOptions = Array.from(debitAccount.options);
+    
+    // Fungsi untuk memfilter akun berdasarkan role area
+    function filterAccountsByRole(role) {
+        // Filter credit account
+        creditAccount.innerHTML = '<option value="">Select Credit Account</option>';
+        allCreditOptions.forEach(option => {
+            if (option.value === "" || option.getAttribute('data-role') === role) {
+                creditAccount.appendChild(option.cloneNode(true));
+            }
+        });
+        
+        // Filter debit account
+        debitAccount.innerHTML = '<option value="">Select Debit Account</option>';
+        allDebitOptions.forEach(option => {
+            if (option.value === "" || option.getAttribute('data-role') === role) {
+                debitAccount.appendChild(option.cloneNode(true));
+            }
+        });
+    }
+    
+    // Event listener untuk perubahan role area
+    roleAreaSelect.addEventListener('change', function() {
+        const selectedRole = this.value;
+        if (selectedRole) {
+            filterAccountsByRole(selectedRole);
+        } else {
+            // Tampilkan semua akun jika tidak ada role yang dipilih
+            creditAccount.innerHTML = '';
+            allCreditOptions.forEach(option => {
+                creditAccount.appendChild(option.cloneNode(true));
+            });
+            
+            debitAccount.innerHTML = '';
+            allDebitOptions.forEach(option => {
+                debitAccount.appendChild(option.cloneNode(true));
+            });
+        }
+    });
+    
+    // Event listener untuk transaction master
+    const transactionMaster = document.getElementById('transactionMaster');
+    transactionMaster.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption && selectedOption.value) {
+            const role = selectedOption.getAttribute('data-role');
+            if (role) {
+                // Set role area sesuai dengan transaction master
+                roleAreaSelect.value = role;
+                
+                // Trigger change event pada role area untuk memfilter akun
+                const event = new Event('change');
+                roleAreaSelect.dispatchEvent(event);
+                
+                // Isi field lainnya
+                document.getElementById('transactionDescription').value = selectedOption.getAttribute('data-description') || '';
+                document.getElementById('transactionAmount').value = selectedOption.getAttribute('data-amount') || '';
+                
+                // Set debit dan credit account jika ada
+                const debitAccountId = selectedOption.getAttribute('data-debit');
+                const creditAccountId = selectedOption.getAttribute('data-credit');
+                
+                if (debitAccountId) {
+                    setTimeout(() => {
+                        document.getElementById('debitAccount').value = debitAccountId;
+                    }, 100);
+                }
+                
+                if (creditAccountId) {
+                    setTimeout(() => {
+                        document.getElementById('creditAccount').value = creditAccountId;
+                    }, 100);
+                }
+            }
+        }
+    });
+});
+</script>
 
 <script src="{{ asset('js/transaction.js') }}"></script>
 @stack('scripts')

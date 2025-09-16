@@ -19,12 +19,14 @@ class Transaction extends Model
         'id_deposit_master',
         'debit_account_id',
         'credit_account_id',
+        'role_area', // ditambahkan
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'transaction_date' => 'date',
     ];
+
     // Relasi ke Account
     public function debitAccount()
     {

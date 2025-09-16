@@ -39,6 +39,9 @@ return new class extends Migration
                 ->constrained('deposit_masters')
                 ->onDelete('set null');
 
+            // role_area hanya bisa 'mahad' atau 'yayasan'
+            $table->enum('role_area', ['mahad', 'yayasan']);
+
             $table->timestamps();
         });
 

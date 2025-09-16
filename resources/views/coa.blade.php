@@ -70,6 +70,17 @@
                            step="0.01">
                 </div>
             </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="role_area">Role Area:</label>
+                    <select name="role_area" id="role_area" required>
+                        <option value="">Select role area...</option>
+                        <option value="yayasan">Yayasan</option>
+                        <option value="mahad">Mahad</option>
+                    </select>
+                </div>
+            </div>
             
             <div class="form-group">
                 <label for="description">Description (Optional):</label>
@@ -118,6 +129,9 @@
             <tr>
                 <th>Account Number</th>
                 <th>Account Name</th>
+                <th>Account Type</th> <!-- ✅ Tambahan -->
+                <th>Role Area</th>
+                <th>Initial Value</th>
                 <th>Description</th>
                 <th>Actions</th>
             </tr>
@@ -127,6 +141,9 @@
                 <tr id="account-{{ $account->id }}">
                     <td>{{ $account->id }}</td>
                     <td>{{ $account->name }}</td>
+                    <td>{{ $account->type }}</td> <!-- ✅ Tambahan -->
+                    <td>{{ ucfirst($account->role_area) }}</td>
+                    <td>{{ number_format($account->nilai_awal, 2) }}</td>
                     <td>{{ $account->description ?? '-' }}</td>
                     <td>
                         <button type="button" onclick="editAccount({{ $account->id }})">Edit</button>
@@ -147,51 +164,49 @@
 </div>
 
 <script>
-
 function editAccount(accountId) {
-    // Get account data from the table row
     const row = document.getElementById('account-' + accountId);
     const cells = row.getElementsByTagName('td');
-    
-    // Extract data from table cells
+
     const accountNumber = cells[0].textContent;
-    const accountName = cells[1].textContent;
-    const description = cells[2].textContent === '-' ? '' : cells[2].textContent;
-    
-    // We need to fetch the account type and initial value from the server
-    // For now, populate what we can from the table
+    const accountName   = cells[1].textContent;
+    const accountType   = cells[2].textContent; // ✅ ambil account type
+    const roleArea      = cells[3].textContent.toLowerCase();
+    const initialValue  = cells[4].textContent.replace(/,/g, '');
+    const description   = cells[5].textContent === '-' ? '' : cells[5].textContent;
+
     document.getElementById('accountId').value = accountId;
     document.getElementById('account_number').value = accountNumber;
     document.getElementById('account_name').value = accountName;
+    document.getElementById('account_type').value = accountType;
+    document.getElementById('role_area').value = roleArea;
+    document.getElementById('initial_value').value = initialValue;
     document.getElementById('description').value = description;
-    
-    // Update form for editing
+
     document.getElementById('formTitle').textContent = 'Edit Account';
     document.getElementById('submitBtn').textContent = 'Update Account';
     document.getElementById('formMethod').value = 'PUT';
     document.getElementById('accountForm').action = '/coa/' + accountId;
-    
-    // Scroll to form
+
     document.getElementById('accountForm').scrollIntoView({ behavior: 'smooth' });
 }
 
 function deleteAccount(accountId) {
     if (confirm('Are you sure you want to delete this account? This action cannot be undone.')) {
-        // Create a form to submit delete request
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '/coa/' + accountId;
-        
+
         const csrfInput = document.createElement('input');
         csrfInput.type = 'hidden';
         csrfInput.name = '_token';
         csrfInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        
+
         const methodInput = document.createElement('input');
         methodInput.type = 'hidden';
         methodInput.name = '_method';
         methodInput.value = 'DELETE';
-        
+
         form.appendChild(csrfInput);
         form.appendChild(methodInput);
         document.body.appendChild(form);

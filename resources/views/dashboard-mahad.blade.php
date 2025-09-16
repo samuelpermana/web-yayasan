@@ -7,13 +7,13 @@
     @include('partials.stats')
 
     <div class="card">
-        <h3>Recent Transactions</h3>
+        <h3>Recent Transactions (Mahad)</h3>
 
         <!-- Filter Form -->
         <div class="card">
             <h4 style="margin-bottom: 20px; color: #4a5568;">Filter Transactions</h4>
 
-            <form method="GET" action="{{ route('dashboard') }}" id="filterForm">
+            <form method="GET" action="{{ route('dashboard.mahad') }}" id="filterForm">
                 <div class="form-row">
                     <!-- Date From -->
                     <div class="form-group">
@@ -70,7 +70,7 @@
                     <div class="form-group" style="display: flex; align-items: end; gap: 10px;">
                         <button type="submit">Filter</button>
 
-                        <a href="{{ route('dashboard') }}" style="text-decoration: none;">
+                        <a href="{{ route('dashboard.mahad') }}" style="text-decoration: none;">
                             <button type="button" style="background: linear-gradient(135deg, #718096, #4a5568);">Reset</button>
                         </a>
 
@@ -189,7 +189,6 @@
             </tbody>
         </table>
 
-
         <!-- Pagination -->
         <div style="text-align: center; margin-top: 30px;">
             <p style="color: #718096; margin-bottom: 20px; font-weight: 600;">
@@ -215,6 +214,7 @@
                 }
             }
 
+            // Export khusus Mahad
             const exportUrl = '{{ route("transactions.export") }}' + '?' + params.toString();
             window.open(exportUrl, '_blank');
         });
